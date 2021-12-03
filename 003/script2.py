@@ -1,35 +1,43 @@
 # test: 198
-# input: 
+# input: 3765399
+
+def epsilon_on_position(iterable, position):
+    counter_1 = 0
+    for line in iterable:
+        if line[position] == '1':
+            counter_1 += 1
+        
+    counter_0 = len(iterable) - counter_1
+    return '0' if counter_0 > counter_1 else '1'
 
 lines = open('input.txt', 'r').read().splitlines()
 
-numbers_count = len(lines) 
-counter_1 = [0] * len(lines[0])
+oxygen_candidates= lines.copy()
+co2_candidates = lines.copy()
 
-gamma = ''
-epsilon = ''
+numbers_len = len(lines[0])
 
-for line in lines:
-    for i, digit in enumerate(line):
-        if digit == '1':
-            counter_1[i] += 1
+for i in range(numbers_len):
+    if len(oxygen_candidates) == 1:
+        break
+    g = epsilon_on_position(oxygen_candidates, i)
+    for candidate in oxygen_candidates.copy():    
+        if candidate[i] != g:
+            oxygen_candidates.remove(candidate)
 
-for c1 in counter_1:
-    count_1 = int(c1)
-    count_0 = numbers_count - count_1
-    if (count_0 >  count_1):
-        gamma += '0'
-    else:
-        gamma += '1'
+for i in range(numbers_len):
+    if len(co2_candidates) == 1:
+        break
+    g = epsilon_on_position(co2_candidates, i)
+    for candidate in co2_candidates.copy():
+        if candidate[i] == g:
+            co2_candidates.remove(candidate)
 
-for c in gamma:
-    if c == '1':
-        epsilon += '0'
-    else:
-        epsilon += '1'
+print(oxygen_candidates)
+print(co2_candidates)
 
-print(gamma)
-print(epsilon)
-print(int(gamma, 2))
-print(int(epsilon, 2))
-print(int(gamma, 2)*int(epsilon, 2))
+result = int(oxygen_candidates[0], 2) * int(co2_candidates[0], 2)
+print(result)
+
+
+    
