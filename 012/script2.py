@@ -1,6 +1,6 @@
 from collections import defaultdict
 from pprint import pprint
-import re
+import cProfile
 
 # test: 
 # input: 146553
@@ -16,7 +16,7 @@ for l in lines:
 
 
 def is_small_cave(cave_name):
-    return bool(re.match("^[a-z]*$", cave_name))
+    return cave_name.islower()
 
 
 def travel(cave, path, small_cave_ticket):
@@ -35,6 +35,7 @@ def travel(cave, path, small_cave_ticket):
             output_paths.extend(outputs)
     return output_paths
 
+# cProfile.run('travel("start", [], True)')
 
 all_paths = travel("start", [], True)
 print(len(all_paths))
