@@ -39,16 +39,14 @@ folded_dots = list(dots)
 for f in folds:
     folded_dots = fold(folded_dots, f[0], f[1])
 
-max_x = max(map(lambda f: f[0], folded_dots)) + 1
-max_y = max(map(lambda f: f[1], folded_dots)) + 1
+paper_size_x = max(map(lambda f: f[0], folded_dots)) + 1
+paper_size_y = max(map(lambda f: f[1], folded_dots)) + 1
 
-paper_size = max(max_x, max_y)
-printer = [['.'] * paper_size for i in range(paper_size)]
+printer = [[' '] * paper_size_x for i in range(paper_size_y)]
 
 for d in folded_dots:
     x, y = d
-    if x < paper_size and y < paper_size:
-        printer[y][x] = '#'
+    printer[y][x] = '#'
 
 for l in printer:
     for p in l:
