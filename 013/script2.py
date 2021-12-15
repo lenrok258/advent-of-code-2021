@@ -46,7 +46,7 @@ printer = [[' '] * paper_size_x for i in range(paper_size_y)]
 
 for d in folded_dots:
     x, y = d
-    printer[y][x] = '#'
+    printer[y][x] = '▓'
 
 for l in printer:
     for p in l:

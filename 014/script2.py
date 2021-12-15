@@ -1,5 +1,4 @@
-from collections import deque
-from collections import defaultdict
+from collections import defaultdict, Counter
 import cProfile
 from copy import copy
 
@@ -50,9 +49,10 @@ def calculate_new_polymer(polymer, rules, steps):
 
 calculate_new_polymer(polymer, rules, 40)
 
-a_distr_sorted = sorted(a_distribution, key=a_distribution.get, reverse=True)
-a_max = a_distribution[a_distr_sorted[0]]
-a_min = a_distribution[a_distr_sorted[-1]]
+counter = Counter(a_distribution)
+a_distr_sorted = counter.most_common()
+a_max = a_distr_sorted[0][1]
+a_min = a_distr_sorted[-1][1]
 
 print(f"max:{a_max}, min:{a_min}")
 print(a_max-a_min)
