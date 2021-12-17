@@ -68,8 +68,8 @@ def try_to_hit(init_vx, init_vy, ticks):
 
 
 result = -1
-for vx in range(-200, 200):
-    for vy in range(-200, 200):
+for vx in range(0, 200):
+    for vy in range(0, 200):
         max_y = try_to_hit(vx, vy, 1000)
         if max_y != -1:
             result = max(result, max_y)
