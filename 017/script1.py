@@ -75,7 +75,3 @@ for vx in range(0, 200):
             result = max(result, max_y)
 
 print(result)
-
-# time ./run.sh
-# real	0m7.131s :(
-
