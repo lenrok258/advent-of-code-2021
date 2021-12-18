@@ -34,12 +34,7 @@ def find_num_to_split(expr):
 
 
 def add_expressions(expr_1, expr_2):
-    summ = []
-    summ.extend('[')
-    summ.extend(expr_1)
-    summ.extend(expr_2)
-    summ.extend(']')
-    return summ
+    return ['['] + expr_1 + expr_2 + [']']
 
 
 def number_to_the_left(expr, start_idx):
@@ -78,12 +73,7 @@ def explode(expr, num_to_explode):
         expr[next_right_idx] = old_value + b
 
     # replace exploding pair with 0
-    new_expr = []
-    new_expr.extend(expr[:left_idx-1])
-    new_expr.extend('0')
-    new_expr.extend(expr[right_idx+2:])
-
-    return new_expr
+    return expr[:left_idx-1] + ['0'] + expr[right_idx+2:]
 
 
 def split(expr, num_to_split_idx):
@@ -91,11 +81,7 @@ def split(expr, num_to_split_idx):
     floor = split_me // 2
     ceiling = split_me - floor
     els_to_add = ['[', floor, ceiling, ']']
-    new_expr = []
-    new_expr.extend(expr[:num_to_split_idx])
-    new_expr.extend(els_to_add)
-    new_expr.extend(expr[num_to_split_idx + 1:])
-    return new_expr
+    return expr[:num_to_split_idx] + els_to_add + expr[num_to_split_idx + 1:]
 
 
 def reduce(expr):
