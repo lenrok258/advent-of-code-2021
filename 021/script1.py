@@ -6,8 +6,6 @@ lines = open('input.txt', 'r').read().splitlines()
 starting_pos_1 = int(lines[0].split('Player 1 starting position: ')[1])
 starting_pos_2 = int(lines[1].split('Player 2 starting position: ')[1])
 
-print(f"{starting_pos_1}, {starting_pos_2}")
-
 
 def roll_a_dice(dice_last_val):
     values = []
@@ -36,15 +34,11 @@ def tick(player_no, players_scores, players_positions, dice_values):
     players_scores[player_no] += score
     players_positions[player_no] = score
 
-    print(f"Player {player_no+1} rolls {dice_values} (sum: {dice_value}), got {score} points ({players_scores[player_no]})" )
-
     if players_scores[player_no] >= 1000:
-        print("We have a winner!")
         return player_no
 
     return None
 
-# ------------------------
 
 players_scores = [0] * 2
 players_positions = [starting_pos_1, starting_pos_2]
