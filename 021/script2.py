@@ -1,25 +1,13 @@
 from copy import copy
+from functools import lru_cache
 
 # test: 
-# input: 
+# input: 712381680443927
 
-lines = open('input_test.txt', 'r').read().splitlines()
+lines = open('input.txt', 'r').read().splitlines()
 
 starting_pos_1 = int(lines[0].split('Player 1 starting position: ')[1])
 starting_pos_2 = int(lines[1].split('Player 2 starting position: ')[1])
-
-print(f"{starting_pos_1}, {starting_pos_2}")
-
-# return all posibilities
-def roll_a_dice():
-    return [1,2,3]
-    # curr_value = dice_last_val
-    # for i in range(3):
-    #     curr_value += 1
-    #     if curr_value > 21:
-    #         curr_value = 1
-    #     values.append(curr_value)
-    # return values
 
 
 def get_score(last_position, move):
@@ -31,73 +19,43 @@ def get_score(last_position, move):
     return pos
 
 
-# def tick(player_no, players_scores, players_positions, dice_values):
+@lru_cache(maxsize=None)
+def tick_3(player, p1_score, p2_score, p1_position, p2_position):
 
-#     dice_value = sum(dice_values)
-#     score = get_score(players_positions[player_no], dice_value)
-#     players_scores[player_no] += score
-#     players_positions[player_no] = score
+    print(f"{p1_score}")
 
-#     print(f"Player {player_no+1} rolls {dice_values} (sum: {dice_value}), got {score} points ({players_scores[player_no]})" )
+    if p1_score >= 21:
+        return [1, 0]
+    elif p2_score >= 21:
+        return [0, 1]
 
-#     if players_scores[player_no] >= 21:
-#         print("We have a winner!")
-#         return player_no
+    prv_position = p1_position if player == 0 else p2_position
 
-#     return None
+    wins = [0,0]
+    for x in [1,2,3]:
+        for y in [1,2,3]:
+            for z in [1,2,3]:
+                dice_result = x + y + z
+                score = get_score(prv_position, dice_result)
 
-def tick_2(player_no, players_scores, players_positions, dice_throw_no, player_dice_result):
+                new_p1_score = p1_score
+                new_p1_position = p1_position
+                new_p2_score = p2_score
+                new_p2_position = p2_position
+                if player == 0:
+                    new_p1_score = p1_score + score
+                    new_p1_position = score
+                elif player == 1:
+                    new_p2_score = p2_score + score
+                    new_p2_position = score
 
-    print(f"player: {player_no}, scores: {players_scores}, positions: {players_positions}, throw no: {dice_throw_no}, dice result {player_dice_result}")
+                next_player = 1 if player == 0 else 0
+                single_res = tick_3(next_player, new_p1_score, new_p2_score, new_p1_position, new_p2_position)
+                wins[0] += single_res[0]
+                wins[1] += single_res[1]
 
-    all_possible_rolls = roll_a_dice()
+    return wins
 
-    all_possible_results = [0,0]
-    for roll in all_possible_rolls:
-
-        if dice_throw_no in [0,1]:
-            
-            dice_throw_no += 1
-            roll_sum = player_dice_result + roll
-            all_possible_results = tick_2(player_no, list(players_scores), list(players_positions), dice_throw_no, roll_sum)
-
-        elif dice_throw_no in [2]:
-
-            roll_sum = player_dice_result + roll
-
-            score = get_score(players_positions[player_no], roll)
-            players_scores[player_no] += score
-            players_positions[player_no] = score
-            if players_scores[player_no] >= 21:
-                # dodaj do wyników
-                if player_no == 0:
-                    all_possible_results[0] += 1
-                else:
-                    all_possible_results[1] += 1
-                continue
-            
-            # switch player
-            new_player_no = 1 if player_no == 0 else 0
-            # continue with the game with new player
-            single_results = tick_2(new_player_no, list(players_scores), list(players_positions), 0, 0)
-            # add computed results
-            all_possible_results[0] += single_results[0]
-            all_possible_results[1] += single_results[1]
-
-        else:
-            assert False
-
-    return all_possible_results
-
-
-
-
-
-# ------------------------
-
-players_scores = [0] * 2
-players_positions = [starting_pos_1, starting_pos_2]
-
-winners_distribution = tick_2(0, players_scores, players_positions, 0, 0)
-
-print(winners_distribution)
+                
+win_distribution = tick_3(0, 0, 0, starting_pos_1, starting_pos_2)
+print(win_distribution)
