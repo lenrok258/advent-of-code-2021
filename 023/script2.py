@@ -28,6 +28,9 @@ def print_building(hallway, rooms):
 def cost_multiplier(amph_type):
     return {'A':1, 'B':10, 'C':100, 'D':1000}[amph_type]
 
+def ampth_type_to_room_nr(amph_type):
+    return {'A':0, 'B':1, 'C':2, 'D':3}[amph_type]
+
 
 print_building(hallway, rooms)
 
@@ -66,12 +69,24 @@ def copy_alter(hallway, rooms, room_nr, room_pos, room_new_value, hallway_pos, h
     return (new_hallway, new_rooms)
 
 
-def find_free_spot_in_room(room_nr, rooms):
+def find_free_spot_in_room(room_nr, rooms, amph_type):
     room = rooms[room_nr]
-    for spot_i in reversed(range(4)):
+    spot_candidate = None
+    # If it is not your room, do not enter
+    matching_room = ampth_type_to_room_nr(amph_type)
+    if matching_room != room_nr:
+        return None
+
+    # Look for the first one with '.' (empty space)
+    for spot_i in reversed(range(4)): #3, 2, 1, 0
         spot_v = room[spot_i]
         if spot_v[0] == '.':
-            return spot_i
+            spot_candidate = spot_i
+            return spot_candidate
+    # If there is a wrong amph in the same room, do not go there
+    # for spot_i in reversed(spot_candidate, 4): 
+    #     pass
+   
     return None
 
 
@@ -140,7 +155,7 @@ def make_all_possible_moves(hallway, rooms):
                 new_pos_candidate = hall_i - hallway_move
                 if hallway[new_pos_candidate] == 'X':
                     room_nr = hallway_position_to_room_nr(new_pos_candidate)
-                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms)
+                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms, hall_v[0])
                     if free_spot_in_room == None:
                         continue
                     new_hallway, new_rooms = copy_alter(hallway, rooms, room_nr, free_spot_in_room, hall_v, hall_i, '.')
@@ -157,7 +172,7 @@ def make_all_possible_moves(hallway, rooms):
                 new_pos_candidate = hall_i + hallway_move
                 if hallway[new_pos_candidate] == 'X':
                     room_nr = hallway_position_to_room_nr(new_pos_candidate)
-                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms)
+                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms, hall_v[0])
                     if free_spot_in_room == None:
                         continue
                     new_hallway, new_rooms = copy_alter(hallway, rooms, room_nr, free_spot_in_room, hall_v, hall_i, '.')
@@ -180,7 +195,8 @@ def make_all_possible_moves(hallway, rooms):
 @lru_cache(maxsize=None)
 def tick(hallway, rooms, cost):
     if is_final_state(rooms):
-        print(cost)
+        print(f"Found solution!: {cost}")
+        print_building(hallway, rooms)
         return [cost]
 
     all_possible_costs = []
@@ -208,4 +224,5 @@ def tick(hallway, rooms, cost):
 # print(f"avilable moves: {len(moves)}")
 
 result = tick(hallway, rooms, 0)
-print(result)
+print(f"ALL POSSIBLE COSTS: {result}")
+print(max(result))
