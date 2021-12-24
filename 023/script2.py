@@ -1,6 +1,7 @@
 from copy import copy
 from copy import deepcopy
 from functools import lru_cache
+from collections import defaultdict
 
 lines = open('input_test.txt', 'r').read().splitlines()
 
@@ -14,6 +15,7 @@ for i, l in enumerate(lines[2:6]):
     rooms_list[3].append((l[9], 0))
 rooms = (tuple(rooms_list[0]), tuple(rooms_list[1]), tuple(rooms_list[2]), tuple(rooms_list[3]) )
     
+stats = defaultdict(lambda:0)
 
 def print_building(hallway, rooms):
     hallway_str = list(map(lambda h:h[0], hallway))
@@ -75,6 +77,11 @@ def find_free_spot_in_room(room_nr, rooms):
 
 @lru_cache(maxsize=None)
 def make_all_possible_moves(hallway, rooms):
+    stats["tick"] += 1
+    if stats["tick"] % 100_000 == 0:
+        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}" ) 
+        print_building(hallway, rooms)
+
     states = []
 
     # move from room to hallway
@@ -120,8 +127,8 @@ def make_all_possible_moves(hallway, rooms):
                     else: # some is already here
                         break
 
-                # only first one can move
-                break
+            # only first one can move
+            break
 
     # move from hallway to room
     for hall_i, hall_v in enumerate(hallway):
@@ -161,7 +168,13 @@ def make_all_possible_moves(hallway, rooms):
                 else:
                     # someone stands on the way
                     break
-    return states
+
+    if not states:
+        stats["no_move"] += 1 
+    
+    stats["states_checked"] += len(states) 
+
+    return tuple(states)
 
 
 @lru_cache(maxsize=None)
@@ -173,7 +186,7 @@ def tick(hallway, rooms, cost):
     all_possible_costs = []
     for new_state in make_all_possible_moves(hallway, rooms):
         hallway, rooms, last_move_cost = new_state
-        print_building(hallway, rooms)
+        # print_building(hallway, rooms)
         new_costs = tick(hallway, rooms, last_move_cost)
         all_possible_costs.extend(new_costs)
 
