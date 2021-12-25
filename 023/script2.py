@@ -17,6 +17,7 @@ rooms = (tuple(rooms_list[0]), tuple(rooms_list[1]), tuple(rooms_list[2]), tuple
     
 stats = defaultdict(lambda:0)
 
+
 def print_building(hallway, rooms):
     hallway_str = list(map(lambda h:h[0], hallway))
     print("".join(hallway_str))
@@ -32,8 +33,6 @@ def cost_multiplier(amph_type):
 def ampth_type_to_room_nr(amph_type):
     return {'A':0, 'B':1, 'C':2, 'D':3}[amph_type]
 
-
-print_building(hallway, rooms)
 
 def is_final_state(rooms):
     # TODO: add checking if hallways is empty
@@ -93,16 +92,10 @@ def find_free_spot_in_room(room_nr, rooms, amph_type):
     return None
 
 
-# @lru_cache(maxsize=None)
-def make_all_possible_moves(hallway, rooms):
-    stats["tick"] += 1
-    if stats["tick"] % 100_000 == 0:
-        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}, solusions: {stats['solution_found']}, current_min_solution: {stats['current_min_solution']}" ) 
-        # print_building(hallway, rooms)
+def moves_from_hallway_to_room(hallway, rooms):
 
     states = []
 
-    # move from hallway to room
     for hall_i, hall_v in enumerate(hallway):
         if hall_v in ['X', '.']:
             continue
@@ -140,8 +133,13 @@ def make_all_possible_moves(hallway, rooms):
                 else:
                     # someone stands on the way
                     break
+    
+    return states
 
-    # move from room to hallway
+
+def moves_from_room_to_hallway(hallway, rooms):
+    states = []
+
     for room_nr, room in enumerate(rooms):
         for amph_i, amph in enumerate(room):
             # empty spot, try another amph in this room
@@ -187,6 +185,25 @@ def make_all_possible_moves(hallway, rooms):
             # only first one can move
             break
 
+    return states
+
+# @lru_cache(maxsize=None)
+def make_all_possible_moves(hallway, rooms):
+    stats["tick"] += 1
+    if stats["tick"] % 100_000 == 0:
+        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}, solusions: {stats['solution_found']}, current_min_solution: {stats['current_min_solution']}" ) 
+        # print_building(hallway, rooms)
+
+    states = []
+
+    # move from hallway to room
+    moves_from_hallway = moves_from_hallway_to_room(hallway, rooms)
+    states.extend(moves_from_hallway)
+
+    # move from room to hallway
+    moves_from_room = moves_from_room_to_hallway(hallway, rooms)
+    states.extend(moves_from_room)
+
     if not states:
         stats["no_move"] += 1 
     
@@ -221,15 +238,17 @@ def tick(hallway, rooms, cost):
 
 # print(min(tick(hallway, rooms, 0)))
 
-# moves = make_all_possible_moves(hallway, rooms)
-# for move in moves:
-#     hallway, rooms, cost = move
-#     print(f"cost: {cost}")
-#     print_building(hallway, rooms)
-# print()
-# print(f"avilable moves: {len(moves)}")
+print_building(hallway, rooms)
+
+moves = make_all_possible_moves(hallway, rooms)
+for move in moves:
+    hallway, rooms, cost = move
+    print(f"cost: {cost}")
+    print_building(hallway, rooms)
+print()
+print(f"avilable moves: {len(moves)}")
 
 stats["current_min_solution"] = 9999999999999
-result = tick(hallway, rooms, 0)
-print(f"ALL POSSIBLE COSTS: {result}")
-print(max(result))
+# result = tick(hallway, rooms, 0)
+# print(f"ALL POSSIBLE COSTS: {result}")
+# print(max(result))
