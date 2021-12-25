@@ -71,31 +71,33 @@ def copy_alter(hallway, rooms, room_nr, room_pos, room_new_value, hallway_pos, h
 
 def find_free_spot_in_room(room_nr, rooms, amph_type):
     room = rooms[room_nr]
-    spot_candidate = None
+
     # If it is not your room, do not enter
     matching_room = ampth_type_to_room_nr(amph_type)
     if matching_room != room_nr:
         return None
 
+    # If there is a wrong amph in the same room, do not go there or it will be blocked
+    for spot_i in range(4):
+        spot_v = room[spot_i]
+        if spot_v != '.' and spot_v[0] != amph_type:
+            return None
+
     # Look for the first one with '.' (empty space)
     for spot_i in reversed(range(4)): #3, 2, 1, 0
         spot_v = room[spot_i]
         if spot_v[0] == '.':
-            spot_candidate = spot_i
-            return spot_candidate
-    # If there is a wrong amph in the same room, do not go there
-    # for spot_i in reversed(spot_candidate, 4): 
-    #     pass
+            return spot_i
    
     return None
 
 
-@lru_cache(maxsize=None)
+# @lru_cache(maxsize=None)
 def make_all_possible_moves(hallway, rooms):
     stats["tick"] += 1
-    if stats["tick"] % 100_000 == 0:
-        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}" ) 
-        print_building(hallway, rooms)
+    if stats["tick"] % 1_000_000 == 0:
+        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}, solusions: {stats['solution_found']}" ) 
+        # print_building(hallway, rooms)
 
     states = []
 
@@ -192,11 +194,12 @@ def make_all_possible_moves(hallway, rooms):
     return tuple(states)
 
 
-@lru_cache(maxsize=None)
+# @lru_cache(maxsize=None)
 def tick(hallway, rooms, cost):
     if is_final_state(rooms):
-        print(f"Found solution!: {cost}")
-        print_building(hallway, rooms)
+        stats["solution_found"] += 1
+        # print(f"Found solution!: {cost}")
+        # print_building(hallway, rooms)
         return [cost]
 
     all_possible_costs = []
@@ -205,6 +208,7 @@ def tick(hallway, rooms, cost):
         # print_building(hallway, rooms)
         new_costs = tick(hallway, rooms, last_move_cost)
         all_possible_costs.extend(new_costs)
+        # print(f"Path computed {all_possible_costs}")
 
     return all_possible_costs
 
