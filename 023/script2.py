@@ -28,6 +28,7 @@ def print_building(hallway, rooms):
 def cost_multiplier(amph_type):
     return {'A':1, 'B':10, 'C':100, 'D':1000}[amph_type]
 
+
 def ampth_type_to_room_nr(amph_type):
     return {'A':0, 'B':1, 'C':2, 'D':3}[amph_type]
 
@@ -95,11 +96,50 @@ def find_free_spot_in_room(room_nr, rooms, amph_type):
 # @lru_cache(maxsize=None)
 def make_all_possible_moves(hallway, rooms):
     stats["tick"] += 1
-    if stats["tick"] % 1_000_000 == 0:
-        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}, solusions: {stats['solution_found']}" ) 
+    if stats["tick"] % 100_000 == 0:
+        print(f"STATS: tick: {stats['tick']}, states checked: {stats['states_checked']}, no move: {stats['no_move']}, solusions: {stats['solution_found']}, current_min_solution: {stats['current_min_solution']}" ) 
         # print_building(hallway, rooms)
 
     states = []
+
+    # move from hallway to room
+    for hall_i, hall_v in enumerate(hallway):
+        if hall_v in ['X', '.']:
+            continue
+        else:
+            # go left
+            for hallway_move in range(1, hall_i + 1):
+                new_pos_candidate = hall_i - hallway_move
+                if hallway[new_pos_candidate] == 'X':
+                    room_nr = hallway_position_to_room_nr(new_pos_candidate)
+                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms, hall_v[0])
+                    if free_spot_in_room == None:
+                        continue
+                    new_hallway, new_rooms = copy_alter(hallway, rooms, room_nr, free_spot_in_room, hall_v, hall_i, '.')
+                    cost = (hallway_move + 1 + free_spot_in_room) * cost_multiplier(hall_v[0])
+                    states.append((new_hallway, new_rooms, cost))
+                elif hallway[new_pos_candidate] == '.':
+                    continue
+                else:
+                    # someone stands on the way
+                    break
+            
+            # go right
+            for hallway_move in range(1, len(hallway)-hall_i):
+                new_pos_candidate = hall_i + hallway_move
+                if hallway[new_pos_candidate] == 'X':
+                    room_nr = hallway_position_to_room_nr(new_pos_candidate)
+                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms, hall_v[0])
+                    if free_spot_in_room == None:
+                        continue
+                    new_hallway, new_rooms = copy_alter(hallway, rooms, room_nr, free_spot_in_room, hall_v, hall_i, '.')
+                    cost = (hallway_move + 1 + free_spot_in_room) * cost_multiplier(hall_v[0])
+                    states.append((new_hallway, new_rooms, cost))
+                elif hallway[new_pos_candidate] == '.':
+                    continue
+                else:
+                    # someone stands on the way
+                    break
 
     # move from room to hallway
     for room_nr, room in enumerate(rooms):
@@ -147,45 +187,6 @@ def make_all_possible_moves(hallway, rooms):
             # only first one can move
             break
 
-    # move from hallway to room
-    for hall_i, hall_v in enumerate(hallway):
-        if hall_v in ['X', '.']:
-            continue
-        else:
-            # go left
-            for hallway_move in range(1, hall_i + 1):
-                new_pos_candidate = hall_i - hallway_move
-                if hallway[new_pos_candidate] == 'X':
-                    room_nr = hallway_position_to_room_nr(new_pos_candidate)
-                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms, hall_v[0])
-                    if free_spot_in_room == None:
-                        continue
-                    new_hallway, new_rooms = copy_alter(hallway, rooms, room_nr, free_spot_in_room, hall_v, hall_i, '.')
-                    cost = (hallway_move + 1 + free_spot_in_room) * cost_multiplier(hall_v[0])
-                    states.append((new_hallway, new_rooms, cost))
-                elif hallway[new_pos_candidate] == '.':
-                    continue
-                else:
-                    # someone stands on the way
-                    break
-            
-            # go right
-            for hallway_move in range(1, len(hallway)-hall_i):
-                new_pos_candidate = hall_i + hallway_move
-                if hallway[new_pos_candidate] == 'X':
-                    room_nr = hallway_position_to_room_nr(new_pos_candidate)
-                    free_spot_in_room = find_free_spot_in_room(room_nr, rooms, hall_v[0])
-                    if free_spot_in_room == None:
-                        continue
-                    new_hallway, new_rooms = copy_alter(hallway, rooms, room_nr, free_spot_in_room, hall_v, hall_i, '.')
-                    cost = (hallway_move + 1 + free_spot_in_room) * cost_multiplier(hall_v[0])
-                    states.append((new_hallway, new_rooms, cost))
-                elif hallway[new_pos_candidate] == '.':
-                    continue
-                else:
-                    # someone stands on the way
-                    break
-
     if not states:
         stats["no_move"] += 1 
     
@@ -198,6 +199,7 @@ def make_all_possible_moves(hallway, rooms):
 def tick(hallway, rooms, cost):
     if is_final_state(rooms):
         stats["solution_found"] += 1
+        stats["current_min_solution"] = min(stats["current_min_solution"], cost)
         # print(f"Found solution!: {cost}")
         # print_building(hallway, rooms)
         return [cost]
@@ -206,7 +208,7 @@ def tick(hallway, rooms, cost):
     for new_state in make_all_possible_moves(hallway, rooms):
         hallway, rooms, last_move_cost = new_state
         # print_building(hallway, rooms)
-        new_costs = tick(hallway, rooms, last_move_cost)
+        new_costs = tick(hallway, rooms, cost + last_move_cost)
         all_possible_costs.extend(new_costs)
         # print(f"Path computed {all_possible_costs}")
 
@@ -227,6 +229,7 @@ def tick(hallway, rooms, cost):
 # print()
 # print(f"avilable moves: {len(moves)}")
 
+stats["current_min_solution"] = 9999999999999
 result = tick(hallway, rooms, 0)
 print(f"ALL POSSIBLE COSTS: {result}")
 print(max(result))
