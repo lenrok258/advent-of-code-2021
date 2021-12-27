@@ -167,26 +167,54 @@ print_building(input_hallway, input_rooms)
 # print(f"avilable moves: {len(moves)}")
 
 
-moves = all_possible_moves(input_hallway, input_rooms)
-moves_to_check = deque()
-moves_to_check.extend(list(map(lambda m: (0, m), moves)))
+def iterative_solution(hallway, rooms):
+    moves = all_possible_moves(hallway, rooms)
+    moves_to_check = deque()
+    moves_to_check.extend(list(map(lambda m: (0, m), moves)))
 
-results_unique = set()
-min_result = 9999999999999
-for i in range(1_000_000):
-    current_cost, (new_hallway, new_rooms, additional_cost) = moves_to_check.pop()
-    new_cost = current_cost + additional_cost
-    if winnig_state(new_rooms):
-        min_result = min(min_result, new_cost)
-        results_unique.add(new_cost)
-    else:
-        moves_to_add = all_possible_moves(new_hallway, new_rooms)
-        moves_to_check.extend(list(map(lambda m: (new_cost, m), moves_to_add)))
+    results_unique = set()
+    min_result = 9999999999999
+    for i in range(1_000_000):
+        current_cost, (new_hallway, new_rooms, additional_cost) = moves_to_check.pop()
+        new_cost = current_cost + additional_cost
+        if winnig_state(new_rooms):
+            min_result = min(min_result, new_cost)
+            results_unique.add(new_cost)
+        else:
+            moves_to_add = all_possible_moves(new_hallway, new_rooms)
+            moves_to_check.extend(list(map(lambda m: (new_cost, m), moves_to_add)))
 
-    if (i % 10_000 == 0):
-        print(f"{i} {len(moves_to_check)} {min_result}")
+        if (i % 10_000 == 0):
+            print(f"{i} {len(moves_to_check)} {min_result}")
+    return (min_result, results_unique)
 
 
-print(len(moves_to_check))
+# stats = defaultdict(lambda:0)
+
+# @lru_cache(maxsize=None)
+# def recursive_solution(hallway, rooms):
+#     if winnig_state(rooms):
+#         stats['winning'] += 1
+#         return [0]
+    
+#     stats['tick'] += 1
+#     if stats['tick'] % 10_000 == 0:
+#         print(f"{stats['tick']} {stats['winning'] }")
+
+#     all_possible_costs = []
+
+#     moves = all_possible_moves(hallway, rooms)
+#     for move in moves:
+#         new_hallway, new_rooms, additional_cost = move
+#         new_costs = recursive_solution(new_hallway, new_rooms)
+#         all_possible_costs.extend(list(map(lambda c: c + additional_cost, new_costs)))
+
+#     return all_possible_costs
+
+min_result, results_unique = iterative_solution(input_hallway, input_rooms)
 print(min_result)
 print(f"Unique results = {results_unique}")
+
+min_result = recursive_solution(input_hallway, input_rooms)
+print(len(all_possible_costs))
+print(min(all_possible_costs))
