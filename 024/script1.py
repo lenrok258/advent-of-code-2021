@@ -42,9 +42,10 @@ def process_instr(instr, operands, register, input_deque):
         register[var_a] = 1 if register[var_a] == int(get_val_b_value(var_b, register)) else 0
 
 
-def execute_nomad(program, input_deque):
+def execute_nomad(program, input_deque, register_override):
     
     register = defaultdict(lambda : 0)
+    register.update(register_override)
     
     for instr, operands in program:
         process_instr(instr, operands, register, input_deque)
@@ -59,8 +60,8 @@ def check_if_valid_serial(serial_string):
 
 # -----------------------------
 
-tick = 0
-for serial_candidate in range(99999999999999, 11111111111111, -1):
+# tick = 0
+# for serial_candidate in range(99999999999999, 11111111111111, -1):
     pass
     # serial_candidate = str(serial_candidate)
     # if '0' in serial_candidate:
@@ -71,9 +72,20 @@ for serial_candidate in range(99999999999999, 11111111111111, -1):
     #     print(serial_candidate)
     #     break
 
-    tick += 1
-    if tick % 100_000 == 0:
-        print(tick)
+    # tick += 1
+    # if tick % 100_000 == 0:
+    #     print(tick)
 
 # print(check_if_valid_serial("13579246899999"))
+
+for w in "123456789":
+    for z in range(0, 100):
+        input_deque = deque(w)
+        output_register = execute_nomad(input_instr[216:234], input_deque, {'z':z})
+        if output_register['z'] == 10:
+            print(f"z zero dla input z {z} i w = {w}")
+        # print(dict(output_register))
+
+print("============")
+
 
