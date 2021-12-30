@@ -1,4 +1,6 @@
 from collections import defaultdict, deque
+from copy import copy
+from functools import lru_cache
 
 # test: 
 # input: 
@@ -42,7 +44,7 @@ def process_instr(instr, operands, register, input_deque):
         register[var_a] = 1 if register[var_a] == int(get_val_b_value(var_b, register)) else 0
 
 
-def execute_nomad(program, input_deque, register_override):
+def execute_nomad(program, input_deque, register_override={}):
     
     register = defaultdict(lambda : 0)
     register.update(register_override)
@@ -60,32 +62,75 @@ def check_if_valid_serial(serial_string):
 
 # -----------------------------
 
-# tick = 0
-# for serial_candidate in range(99999999999999, 11111111111111, -1):
-    pass
-    # serial_candidate = str(serial_candidate)
-    # if '0' in serial_candidate:
-    #     continue
+input_instr_grouped = []
+group = []
+for ii in input_instr:
+    if ii[0] == 'inp':
+        input_instr_grouped.append(copy(group))
+        group = []
+        group.append(ii)
+    else:
+        group.append(ii)
+input_instr_grouped.append(group)
 
-    # valid = check_if_valid_serial(serial_candidate)
-    # if (valid):
-    #     print(serial_candidate)
-    #     break
+@lru_cache(maxsize=None)
+def find_input_z_and_w(expected_output_z, digit_position_in_number):
+    results = []
+    for w in "123456789":
+        for z in range(-20_000, 20_000):
+            input_deque = deque(w)
+            output_register = execute_nomad(input_instr_grouped[digit_position_in_number], input_deque, {'z':z})
+            if output_register['z'] == expected_output_z:
+                results.append((z, w))
+    return results
+            
 
-    # tick += 1
-    # if tick % 100_000 == 0:
-    #     print(tick)
+@lru_cache(maxsize=None)
+def recursion_magic(expected_output_z, digit_position_in_number):
+    if digit_position_in_number == 0:
+        if expected_output_z == 0:
+            print("SOLUTOION HERE!")
+            return ["S"]
+        return ["X"]
 
-# print(check_if_valid_serial("13579246899999"))
+    zw_list = find_input_z_and_w(expected_output_z, digit_position_in_number)
+    if not zw_list:
+        return ["X"]
+    # print(f"{digit_position_in_number} {zw_list}")
+    possible_results = []
+    for zw in zw_list:
+        zw_results = recursion_magic(zw[0], digit_position_in_number - 1)
+        possible_results.extend(map(lambda res: str(zw[1]) + "-" + res, zw_results))
 
-for w in "123456789":
-    for z in range(0, 100):
-        input_deque = deque(w)
-        output_register = execute_nomad(input_instr[216:234], input_deque, {'z':z})
-        if output_register['z'] == 10:
-            print(f"z zero dla input z {z} i w = {w}")
-        # print(dict(output_register))
-
-print("============")
+    # print(possible_results)   
+    return possible_results
 
 
+# solutions = recursion_magic(0, 14)
+# solutions_int = list(map(lambda s: int(s.replace("-", "").replace("X", "")).replace("S", ""), solutions))
+# solutions_int = list(filter(lambda a: a > 11111111111111), solutions_int)
+# print(max(solutions_int))
+# print(min(solutions_int))
+# print(len(solutions_int))
+
+# validation
+# print(dict(execute_nomad(input_instr, deque("99919692496939"))))
+
+
+def print_z_flow(input_s):
+    override_z = 0
+    input_deq = deque(input_s)
+    z_s = ["0"]
+    for program_segment in input_instr_grouped[1:]:
+        output_reg = execute_nomad(program_segment, input_deq, {'z':override_z})
+        override_z = output_reg['z']
+        z_s.append(str(output_reg['z']))
+    print("\t".join(z_s))
+
+for i in range(15):
+    print(f"{i}\t", end="")
+print()
+print()
+
+print_z_flow("99919692496939")
+print_z_flow("11111111111111")

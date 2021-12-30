@@ -1,8 +1,7 @@
 
--------
 
-inp w 
-
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -23,9 +22,10 @@ add y 5
 mul y x
 add z y
 
--------
+z = z * 26 + w + 5
 
-inp w 
+----------
+inp w
 
 mul x 0
 add x z
@@ -34,20 +34,23 @@ div z 1
 add x 13
 eql x w
 eql x 0
+
 mul y 0
 add y 25
 mul y x
 add y 1
 mul z y
+
 mul y 0
 add y w
 add y 9
 mul y x
 add z y
 
--------
+z = z * 26 + w + 9
 
-inp w 
+----------
+inp w
 
 mul x 0
 add x z
@@ -56,20 +59,23 @@ div z 1
 add x 12
 eql x w
 eql x 0
+
 mul y 0
 add y 25
 mul y x
 add y 1
 mul z y
+
 mul y 0
 add y w
 add y 4
 mul y x
 add z y
 
--------
+z = z * 26 + w + 4
 
-inp w 
+----------
+inp w
 
 mul x 0
 add x z
@@ -78,21 +84,26 @@ div z 26
 add x -12
 eql x w
 eql x 0
+
 mul y 0
 add y 25
 mul y x
 add y 1
 mul z y
+
 mul y 0
 add y w
 add y 4
 mul y x
 add z y
 
--------
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 12 => w
 
-inp w 
+z = z // 26
 
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -111,9 +122,10 @@ add y 10
 mul y x
 add z y
 
--------
+z = z * 26 + w + 10
 
-inp w 
+----------
+inp w
 
 mul x 0
 add x z
@@ -122,21 +134,26 @@ div z 26
 add x -13
 eql x w
 eql x 0
+
 mul y 0
 add y 25
 mul y x
 add y 1
 mul z y
+
 mul y 0
 add y w
 add y 14
 mul y x
 add z y
 
--------
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 13 => w
 
-inp w 
+z = z // 26
 
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -155,10 +172,13 @@ add y 14
 mul y x
 add z y
 
--------
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 9 => w
 
-inp w 
+z = z // 26
 
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -177,10 +197,14 @@ add y 12
 mul y x
 add z y
 
--------
 
-inp w 
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 12 => w
 
+z = z // 26
+
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -199,10 +223,10 @@ add y 14
 mul y x
 add z y
 
--------
+z = z * 26 + w + 14
 
-inp w 
-
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -221,10 +245,13 @@ add y 14
 mul y x
 add z y
 
--------
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 9 => w
 
-inp w 
+z = z // 26
 
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -243,10 +270,10 @@ add y 5
 mul y x
 add z y
 
--------
+z = z * 26 + w + 5
 
-inp w 
-
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -265,14 +292,10 @@ add y 10
 mul y x
 add z y
 
----------
+z = z * 26 + w + 10
 
-
--------
-
-inp w 
-
-
+----------
+inp w
 mul x 0
 add x z
 mod x 26
@@ -280,53 +303,45 @@ div z 26
 add x -16
 eql x w
 eql x 0
-
 mul y 0
 add y 25
 mul y x
 add y 1
 mul z y
-
 mul y 0
 add y w
 add y 8
 mul y x
-
 add z y
 
----------
 
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 16 => w
 
--------
+z = z // 26
 
-inp w 
-
-
+----------
+inp w
 mul x 0
 add x z
 mod x 26
-div z 26 
+div z 26
 add x -2
 eql x w
-eql x 0 
-=> x = (1 if x == w else 0)
-=> z = z // 26
-
+eql x 0
 mul y 0
 add y 25
 mul y x
 add y 1
 mul z y
-=> 
-
 mul y 0
 add y w
 add y 15
 mul y x
-
 add z y
 
 
-z = -y
-y = (w + 15) * x
-x 
+# aby x==0 (a potem y==1) musi być zajść:
+(z % 26) - 2 => w
+
+z = z // 26
